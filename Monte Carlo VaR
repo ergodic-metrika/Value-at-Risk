@@ -1,0 +1,46 @@
+
+#The following is based on Kannan Singaravelu's VaR lecture in CQF.
+
+# Data manipulation
+import pandas as pd
+import numpy as np
+from numpy.linalg import multi_dot
+
+from scipy.stats import norm
+from tabulate import tabulate
+
+# Import matplotlib for visualization
+import matplotlib
+import matplotlib.pyplot as plt
+
+# Plot settings
+plt.style.use('ggplot')
+matplotlib.rcParams['figure.figsize'] = [12.0, 8.0]
+matplotlib.rcParams['font.size'] = 10
+matplotlib.rcParams['lines.linewidth'] = 2.0
+
+#from helper import plot_var
+
+# VaR function
+def VaR(symbol, cl=0.95):
+    mean = np.mean(returns[symbol])
+    stdev = np.std(returns[symbol])
+    
+    return np.around(100*norm.ppf(1-cl,mean,stdev),4)
+
+# Set seed for reproducibility
+np.random.seed(42)
+
+# Number of simulations
+n_sims = 2500
+
+# Simulate returns and sort
+sim_returns = np.random.normal(mean, stdev, n_sims)
+
+# Use percentile function for MCVaR
+MCVaR_90 = np.percentile(sim_returns,10)
+MCVaR_95 = np.percentile(sim_returns, 5)
+MCVaR_99 = np.percentile(sim_returns,1)
+
+mctable = [['90%', MCVaR_90],['95%', MCVaR_95],['99%', MCVaR_99]]
+print(tabulate(mctable,headers=header))
